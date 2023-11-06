@@ -7,7 +7,7 @@ using either timestamp ctime, atime or mtime
 folder structure depth is specified according to dated granularity of -hd (hierachy depth <month> default)
 
 Currently copies from one folder and creates revised directory structure elsewhere.
-Future version may re-arrange a trees (folder structure) in place, by moving files around vs. copying them.
+Future version may re-arrange a trees (folder structure) in place, by moving files around vs copying.
 """
 
 hierachy_depths = ['year', 'month', 'day', 'hour', 'minute', 'second']
