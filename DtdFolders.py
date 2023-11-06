@@ -1,13 +1,20 @@
-import argparse, os, os.path, shutil
+import argparse, os, os.path
+import shutil
 from datetime import datetime
 
 """
-move image stream to file system folders organized by date(d) grouping scheme
+Nextcloud is a nice place to store images.  10,000 images in one folder will bring its performance down to its knees, or knock it flat out.
+300-500 files in any given folder degrades its performance somewhat for files at the bottom of the list(s).
+
+This script reorganizes directory structures based on file creation time(ctime), modified (mtime), or last access time (atime).
+
+move image/file stream into file system folders organized by date(d) grouping scheme
 using either timestamp ctime, atime or mtime
+
 folder structure depth is specified according to dated granularity of -hd (hierachy depth <month> default)
 
-Currently copies from one folder and creates revised directory structure elsewhere.
-Future version may re-arrange a trees (folder structure) in place, by moving files around vs copying.
+XXXXCurrently copies from one folder and creates revised directory structure elsewhere.
+new version re-arrange a trees (folder structure) in place, if src and dest paths are the same
 """
 
 hierachy_depths = ['year', 'month', 'day', 'hour', 'minute', 'second']
@@ -24,7 +31,7 @@ class main(object):
         parser.add_argument("-d", "--destination_tree",
                             dest="dest",
                             default="/mnt/test",
-                            help="/destination/file/path (should be different than source path)",
+                            help="/destination/file/path",os.renames
                             )
         
         parser.add_argument("-hd", "--hierachy_depth",
@@ -34,22 +41,27 @@ class main(object):
                             help="depth of dest_tree structure"
                             )
         
-        parser.add_argument("-t", "--timestamp",
+        parser.add_argument("-t", "--timestamp_type",
                             dest="timestamp",
                             default='ctime',
                             choices=timestamps,
                             help="atime = access, ctime = creation, mtime = last modified date",
                             )
         
-        parser.add_argument('-o', '--test_only',
+        parser.add_argument('-o', '--only_test',
                             dest="test",
                             default=False,
                             action='store_true', 
-                            help="doesn't actually copy files or make dirs")
+                            help="Doesn't copy files or make dirs, only reports resulting folder scheme max file count")
         
+
+        self.operation='copy'
+
         args = parser.parse_args()    
         self.src_tree = args.src
         self.dest_tree = args.dest
+        if self.src_tree == self.dest_tree:
+            self.operation='move'
         self.depth = args.depth
         self.depth_index = hierachy_depths.index(self.depth)
         self.timestamp = args.timestamp
@@ -101,11 +113,10 @@ class main(object):
             if not os.path.isdir( newbasepath ):
                 self.mkdir( newbasepath )
             newfullpath = os.path.join( newbasepath, os.path.basename( fullpath ))
-            if self.copy:
-                shutil.copyfile( fullpath, newfullpath)
-            else:
-                os.rename( fullpath, newfullpath)
-                old_dirname = os.path.dirname(fullpath)
+            if self.operation == "copy":
+                shutil.copystat( fullpath, newfullpath )
+            elif self.operation == "move":
+                os.renames( fullpath, newfullpath)
         return newbasepath
     
     def relocate_files(self):
