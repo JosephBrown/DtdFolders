@@ -31,7 +31,7 @@ class main(object):
         parser.add_argument("-d", "--destination_tree",
                             dest="dest",
                             default="/mnt/test",
-                            help="/destination/file/path",os.renames
+                            help="/destination/file/path",
                             )
         
         parser.add_argument("-hd", "--hierachy_depth",
@@ -54,9 +54,8 @@ class main(object):
                             action='store_true', 
                             help="Doesn't copy files or make dirs, only reports resulting folder scheme max file count")
         
-
         self.operation='copy'
-
+        self.folders_count = {}
         args = parser.parse_args()    
         self.src_tree = args.src
         self.dest_tree = args.dest
@@ -65,23 +64,19 @@ class main(object):
         self.depth = args.depth
         self.depth_index = hierachy_depths.index(self.depth)
         self.timestamp = args.timestamp
-        self.folders_count = {}
         self.testing = args.test
 
-    def iterate_src(self, src_tree=""):
+    def iterate_src(self, src_tree=None):
         """
         Find each file in source directory yeild: full path and stat.
         """
-        if src_tree == "":
+        if src_tree is None:
             src_tree = self.src_tree
-
         for filename in os.listdir(src_tree):
             fullpath = os.path.join( self.src_tree, filename )
             stat = os.stat(fullpath)
-            
             if os.path.isdir(fullpath):
                 self.iterate_src( fullpath )
-
             yield [fullpath, stat ]
 
     def mkdir(self, path):
@@ -90,15 +85,14 @@ class main(object):
             self.mkdir( parent )
         os.mkdir( path )
     
-    def copy_to_dst(self, fullpath, stat):
+    def operate(self, fullpath, stat):
         if self.timestamp == 'ctime':
             ts = datetime.fromtimestamp( stat.st_ctime )
         elif self.timestamp == 'atime':
             ts = datetime.fromtimestamp( stat.st_atime )
         elif self.timestamp == 'mtime':
             ts = datetime.fromtimestamp( stat.st_mtime )
-        year, month, day = ts.year, ts.month, ts.day 
-        # newpath = "{:04d}/{:02d}".format( ts.year, ts.month )
+        # newpath = f"{ts.year:04d}/{ts.month:02d}/..."
         yr_format = "{:04d}"
         dt_format = "{:02d}"
         fmt_arry = [yr_format,] + [ dt_format, ] * self.depth_index
@@ -109,11 +103,11 @@ class main(object):
             self.folders_count[newbasepath] = 1
         else:
             self.folders_count[newbasepath] += 1
+        newfullpath = os.path.join( newbasepath, os.path.basename( fullpath ))
         if not self.testing:
-            if not os.path.isdir( newbasepath ):
-                self.mkdir( newbasepath )
-            newfullpath = os.path.join( newbasepath, os.path.basename( fullpath ))
             if self.operation == "copy":
+                if not os.path.isdir( newbasepath ):
+                    self.mkdir( newbasepath )
                 shutil.copystat( fullpath, newfullpath )
             elif self.operation == "move":
                 os.renames( fullpath, newfullpath)
@@ -122,16 +116,14 @@ class main(object):
     def relocate_files(self):
         count = 0
         for fullpath, stat in self.iterate_src():
-            dstfldr = self.copy_to_dst( fullpath, stat )
+            dstfldr = self.operate( fullpath, stat )
             count +=1
-            # basename = os.path.basename(fullpath)
-            
-            print( "folder: {} count: {}  ".format(dstfldr, count), end='\r' )
+            print( f"Processing folder: {dstfldr} total files: {count}  ", end='\r' )
         max_size = max(self.folders_count.values())
-        print('\n  max folder size:', max_size)
+        print('\r\n  Max size folder(s):')
         for k, v in self.folders_count.items():
             if v == max_size:
-                print(k)
+                print(f"  {v}: {k}")
 
 if __name__=='__main__':
     m = main()
