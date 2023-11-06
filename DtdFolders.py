@@ -14,7 +14,7 @@ using either timestamp ctime, atime or mtime
 folder structure depth is specified according to dated granularity of -hd (hierachy depth <month> default)
 
 XXXXCurrently copies from one folder and creates revised directory structure elsewhere.
-new version re-arrange a trees (folder structure) in place, if src and dest paths are the same
+Next version may re-arrange a tree (folder structure) in place, if src and dest paths are the same.
 """
 
 hierachy_depths = ['year', 'month', 'day', 'hour', 'minute', 'second']
@@ -108,7 +108,7 @@ class main(object):
             if self.operation == "copy":
                 if not os.path.isdir( newbasepath ):
                     self.mkdir( newbasepath )
-                shutil.copystat( fullpath, newfullpath )
+                shutil.copy2( fullpath, newfullpath )
             elif self.operation == "move":
                 os.renames( fullpath, newfullpath)
         return newbasepath
@@ -123,7 +123,7 @@ class main(object):
         print('\r\n  Max size folder(s):')
         for k, v in self.folders_count.items():
             if v == max_size:
-                print(f"  {v}: {k}")
+                print(f"  {v} files in: {k}")
 
 if __name__=='__main__':
     m = main()
