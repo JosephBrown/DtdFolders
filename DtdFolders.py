@@ -2,9 +2,12 @@ import argparse, os, os.path, shutil
 from datetime import datetime
 
 """
-move image stream to file system folders organized by date grouping
+move image stream to file system folders organized by date(d) grouping scheme
+using either timestamp ctime, atime or mtime
+folder structure depth is specified according to dated granularity of -hd (hierachy depth <month> default)
 
-
+Currently copies from one folder and creates revised directory structure elsewhere.
+Future version may re-arrange a trees (folder structure) in place, by moving files around vs. copying them.
 """
 
 hierachy_depths = ['year', 'month', 'day', 'hour', 'minute', 'second']
