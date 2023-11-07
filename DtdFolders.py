@@ -93,9 +93,9 @@ class main(object):
         """
         traverse src_listing
         """
-        for folder, files in self.src_listing:
+        for folder, files in self.src_listing.items():
             for name in files:
-                fullpath = os.join(folder, name)
+                fullpath = os.path.join(folder, name)
                 stat = os.stat(fullpath)
                 yield [fullpath, stat ]
 
