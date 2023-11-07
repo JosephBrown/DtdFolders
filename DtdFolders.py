@@ -12,16 +12,27 @@ Nextcloud generates thumbnail images on the fly and does so for all image files 
 It doesn't appear to manage a cache of generated thumbnails, as some image managers do, opting 
 instead to generate them on the fly as needed. Folders containing over 300 images can impact its performance. 
 
-All files in generic Unix environments have three dates associated with them.  Create, modified & accessed time&dates.
+All files in generic Unix environments have three dates associated with them.  Create, modified & accessed time-dates.
 This script reorganizes directory structures based on file creation time(ctime), modified (mtime), or last access time (atime).
 
-move image/file stream into file system folders organized by date(d) grouping scheme
-using either timestamp ctime, atime or mtime
+Move image/file stream into folders organized by date grouping scheme
+using either timestamp ctime, atime or mtime.
 
 folder structure depth is specified according to dated granularity of -hd (hierachy depth <month> default)
 
 XXXXCurrently copies from one folder and creates revised directory structure elsewhere.
 Next version may re-arrange a tree (folder structure) in place, if src and dest paths are the same.
+
+Directory heiracy in dest folder will be numbered using existing dates on files to depth specified
+
+Year resolution would place all files marked with same year into folder for the year.
+YYYY/filexxxxx.img
+
+Second resolution creates deeper directory structure:
+YYYY/MM/DD/HH/MM/SS/filexxxx.img
+
+How many files end up in each folder depend on how far apart timestamps are speparted.  
+Second resolution may be needed if all files have close time stamps times due to being downloaded in batches.
 """
 
 hierachy_depths = ['year', 'month', 'day', 'hour', 'minute', 'second']
