@@ -66,6 +66,16 @@ class main(object):
         self.timestamp = args.timestamp
         self.testing = args.test
 
+        self.src_listing = {}
+
+    def load_src_list(self, src_tree=None):
+        if src_tree is None:
+            src_tree = self.src_tree
+        for root, dirs, files in os.walk(src_tree):
+            self.src_listing[root]=files
+            for folder in dirs:
+                self.load_src_list(folder)
+
     def iterate_src(self, src_tree=None):
         """
         Find each file in source directory yeild: full path and stat.
@@ -78,6 +88,16 @@ class main(object):
             if os.path.isdir(fullpath):
                 self.iterate_src( fullpath )
             yield [fullpath, stat ]
+
+    def iterate_src(self, src_tree=None):
+        """
+        traverse src_listing
+        """
+        for folder, files in self.src_listing:
+            for name in files:
+                fullpath = os.join(folder, name)
+                stat = os.stat(fullpath)
+                yield [fullpath, stat ]
 
     def mkdir(self, path):
         parent = os.path.dirname( path )
@@ -127,4 +147,5 @@ class main(object):
 
 if __name__=='__main__':
     m = main()
+    m.load_src_list()
     m.relocate_files()
