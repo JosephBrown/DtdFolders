@@ -3,9 +3,16 @@ import shutil
 from datetime import datetime
 
 """
-Nextcloud is a nice place to store images.  10,000 images in one folder will bring its performance down to its knees, or knock it flat out.
+Nextcloud is a nice place to store images.
+
+10,000 images in one folder will bring its performance down to its knees, or knock it out pretty good.
 300-500 files in any given folder degrades its performance somewhat for files at the bottom of the list(s).
 
+Nextcloud generates thumbnail images on the fly and does so for all image files in a given folder. 
+It doesn't appear to manage a cache of generated thumbnails, as some image managers do, opting 
+instead to generate them on the fly as needed. Folders containing over 300 images can impact its performance. 
+
+All files in generic Unix environments have three dates associated with them.  Create, modified & accessed time&dates.
 This script reorganizes directory structures based on file creation time(ctime), modified (mtime), or last access time (atime).
 
 move image/file stream into file system folders organized by date(d) grouping scheme
