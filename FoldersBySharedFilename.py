@@ -18,11 +18,9 @@ It does it in a multi phase set of comparisons.
 
 Fist sorting all filnames and comparing them for similarity and generates a list of possible folder names.
 
-Second it then compares each filename to the list to find the best match found for each file, which is kinda redudant.
+Second it then compares each filename to the list to find the best match found for each file, 
+which is kinda redudant yet seems to work well.
 """
-
-hierachy_depths = ['year', 'month', 'day', 'hour', 'minute', 'second']
-timestamps = ['atime', 'ctime', 'mtime']
 
 class main(object):
     def __init__(self):
@@ -65,9 +63,6 @@ class main(object):
         self.dest_tree = args.dest
         if self.src_tree == self.dest_tree:
             self.operation='move'
-        self.depth = args.depth
-        self.depth_index = hierachy_depths.index(self.depth)
-        self.timestamp = args.timestamp
         self.testing = args.test
         self.minlen = args.minlen
         self.cutoff = args.cutoff
@@ -102,22 +97,22 @@ class main(object):
                     ms = ms[:-1]
                 if len(ms) >= self.minlen and ms not in self.match_list:
                     self.match_list.append(ms)
-        # mc = count = 0
-        # used_matches = {}
-        # for fname in self.filelist:
-        #     mtch = difflib.get_close_matches(fname, self.match_list, n=4, cutoff=0.4)
-        #     if not mtch:
-        #         count += 1
-        #         print(fname)
-        #     else:
-        #         print(fname, mtch)
-        #         mc += 1
-        #         if mtch[0] not in used_matches:
-        #             used_matches[mtch[0]] = 1
-        #         else:
-        #             used_matches[mtch[0]] += 1
-        # print('unused matches', [i for i in self.match_list if i not in used_matches])              
-        # print(mc, count)
+        mc = count = 0
+        used_matches = {}
+        for fname in self.filelist:
+            mtch = difflib.get_close_matches(fname, self.match_list, n=4, cutoff=0.4)
+            if not mtch:
+                count += 1
+                print(fname)
+            else:
+                print(fname, mtch)
+                mc += 1
+                if mtch[0] not in used_matches:
+                    used_matches[mtch[0]] = 1
+                else:
+                    used_matches[mtch[0]] += 1
+        print('unused matches', [i for i in self.match_list if i not in used_matches])              
+        print(mc, count)
     def return_match(self, filename):
         mtch = difflib.get_close_matches(filename, self.match_list, n=4, cutoff=self.cutoff)
         if mtch:
