@@ -38,18 +38,18 @@ class main(object):
                             help="/destination/file/path",
                             )
         
-        parser.add_argument("-hd", "--hierachy_depth",
-                            dest="depth",
-                            choices=hierachy_depths,
-                            default="month",
-                            help="depth of dest_tree structure"
+        parser.add_argument("-c", "--cut_off",
+                            dest="cutoff",
+                            default="0.4",
+                            type='float',
+                            help="fuzzy match 0.4 default, values are between 0-1 where 0.01 is super fuzzy and 0.99 virtually exact matchs only.",
                             )
         
-        parser.add_argument("-t", "--timestamp_type",
-                            dest="timestamp",
-                            default='ctime',
-                            choices=timestamps,
-                            help="atime = access, ctime = creation, mtime = last modified date",
+        parser.add_argument("-m", "--min_folder_length",
+                            dest="minlen",
+                            default='4',
+                            type='int',
+                            help="Minimum folder name length.",
                             )
         
         parser.add_argument('-o', '--only_test',
@@ -69,6 +69,8 @@ class main(object):
         self.depth_index = hierachy_depths.index(self.depth)
         self.timestamp = args.timestamp
         self.testing = args.test
+        self.minlen = args.minlen
+        self.cutoff = args.cutoff
 
         self.src_listing = {}
 
@@ -98,7 +100,7 @@ class main(object):
                 ms = fname1[match.a:match.a + match.size]
                 while ms and ms[-1] in "0123456789!@#$%^&*()-=_+[]{};:'\"\\/":
                     ms = ms[:-1]
-                if len(ms) >= 4 and ms not in self.match_list:
+                if len(ms) >= self.minlen and ms not in self.match_list:
                     self.match_list.append(ms)
         # mc = count = 0
         # used_matches = {}
@@ -117,7 +119,7 @@ class main(object):
         # print('unused matches', [i for i in self.match_list if i not in used_matches])              
         # print(mc, count)
     def return_match(self, filename):
-        mtch = difflib.get_close_matches(filename, self.match_list, n=4, cutoff=0.4)
+        mtch = difflib.get_close_matches(filename, self.match_list, n=4, cutoff=self.cutoff)
         if mtch:
             return mtch[0]
         
